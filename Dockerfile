@@ -4,7 +4,11 @@ RUN apk add --no-cache build-base git openssl ncurses-libs
 
 WORKDIR /app
 
-RUN mix local.hex --force && mix local.rebar --force
+ENV HEX_HTTP_TIMEOUT=120000
+ENV HEX_HTTP_CONCURRENCY=1
+
+RUN mix local.hex --force --if-missing && \
+    mix local.rebar --force --if-missing
 
 COPY . .
 
