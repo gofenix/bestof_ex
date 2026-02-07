@@ -15,7 +15,7 @@ defmodule BestofEx.Components.ProjectRow do
       </div>
 
       <!-- Avatar -->
-      {Avatar.render(%{name: @project["name"], size: "md"})}
+      {Avatar.render(%{name: @project["name"], size: "md", avatar_url: @project["avatar_url"]})}
 
       <!-- Content -->
       <div class="flex-1 min-w-0">
@@ -51,28 +51,17 @@ defmodule BestofEx.Components.ProjectRow do
 
       <!-- Star count -->
       <div class="text-right shrink-0">
-        <span class="star-count text-sm">
-          {format_star_value(@project, @mode)}
-        </span>
+        <div class="star-count text-sm font-semibold text-amber-600">
+          {format_stars(@project["stars"] || 0)}☆
+        </div>
+        <div :if={(@project["star_delta"] || 0) > 0} class="text-xs text-green-600 font-medium mt-0.5">
+          +{format_stars(@project["star_delta"])} this period
+        </div>
       </div>
     </div>
     """
   end
 
-  defp format_star_value(project, mode) do
-    value = case mode do
-      :delta -> project["star_delta"] || 0
-      _ -> project["stars"] || 0
-    end
-
-    formatted = cond do
-      value >= 1000 -> "#{Float.round(value / 1000, 1)}k"
-      true -> "#{value}"
-    end
-
-    case mode do
-      :delta -> "+ #{formatted}☆"
-      _ -> "#{formatted}☆"
-    end
-  end
+  defp format_stars(n) when is_integer(n) and n >= 1000, do: "#{Float.round(n / 1000, 1)}k"
+  defp format_stars(n), do: "#{n}"
 end

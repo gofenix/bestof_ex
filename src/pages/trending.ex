@@ -45,7 +45,7 @@ defmodule BestofEx.Pages.Trending do
           </div>
 
           <%= for {project, idx} <- Enum.with_index(@projects) do %>
-            {ProjectRow.render(%{project: project, tags: project["tags"] || [], mode: :delta, rank: idx + 1})}
+            {ProjectRow.render(%{project: project, tags: project["tags"] || [], rank: idx + 1})}
           <% end %>
         </div>
       </div>
@@ -61,7 +61,7 @@ defmodule BestofEx.Pages.Trending do
     end
 
     {:ok, rows} = NexBase.sql("""
-      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars,
+      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars, p.avatar_url,
              COALESCE(p.stars - ps.stars, 0) AS star_delta
       FROM projects p
       LEFT JOIN project_stats ps

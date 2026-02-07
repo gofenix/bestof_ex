@@ -10,7 +10,10 @@ defmodule BestofEx.Application do
     Nex.Env.init()
     NexBase.init(url: Nex.Env.get(:database_url), ssl: true)
 
-    children = [{NexBase.Repo, []}]
+    children = [
+      {NexBase.Repo, []},
+      {BestofEx.Scheduler, []}
+    ]
     Supervisor.start_link(children, strategy: :one_for_one, name: BestofEx.Supervisor)
   end
 end

@@ -13,7 +13,10 @@ defmodule BestofEx.Components.Avatar do
 
   def render(assigns) do
     ~H"""
-    <div class={"rounded-lg flex items-center justify-center text-white font-bold shrink-0 #{size_class(@size)}"}
+    <div :if={assigns[:avatar_url]} class={"rounded-lg shrink-0 overflow-hidden #{size_class(@size)}"}>
+      <img src={@avatar_url} alt={@name} class="w-full h-full object-cover" loading="lazy" />
+    </div>
+    <div :if={!assigns[:avatar_url]} class={"rounded-lg flex items-center justify-center text-white font-bold shrink-0 #{size_class(@size)}"}
          style={"background-color: #{color_for(@name)}"}>
       {initials(@name)}
     </div>

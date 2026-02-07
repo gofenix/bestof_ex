@@ -69,7 +69,7 @@ defmodule BestofEx.Pages.Index do
               </div>
 
               <%= for project <- @hot_projects do %>
-                {ProjectRow.render(%{project: project, tags: project["tags"] || [], mode: :delta})}
+                {ProjectRow.render(%{project: project, tags: project["tags"] || []})}
               <% end %>
             </div>
 
@@ -109,7 +109,7 @@ defmodule BestofEx.Pages.Index do
     end
 
     {:ok, rows} = NexBase.sql("""
-      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars,
+      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars, p.avatar_url,
              COALESCE(p.stars - ps.stars, 0) AS star_delta
       FROM projects p
       LEFT JOIN project_stats ps
@@ -129,7 +129,7 @@ defmodule BestofEx.Pages.Index do
   # Fetch random featured projects
   defp fetch_featured(count) do
     {:ok, rows} = NexBase.sql("""
-      SELECT p.id, p.name, p.stars,
+      SELECT p.id, p.name, p.stars, p.avatar_url,
              COALESCE(p.stars - ps.stars, 0) AS star_delta,
              (SELECT t.name FROM tags t
               JOIN project_tags pt ON pt.tag_id = t.id

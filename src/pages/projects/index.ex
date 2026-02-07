@@ -70,7 +70,7 @@ defmodule BestofEx.Pages.Projects.Index do
           </div>
 
           <%= for {project, idx} <- Enum.with_index(@projects) do %>
-            {ProjectRow.render(%{project: project, tags: project["tags"] || [], mode: :total, rank: idx + 1})}
+            {ProjectRow.render(%{project: project, tags: project["tags"] || [], rank: idx + 1})}
           <% end %>
         </div>
       </div>
@@ -101,7 +101,7 @@ defmodule BestofEx.Pages.Projects.Index do
     end
 
     {:ok, rows} = NexBase.sql("""
-      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars
+      SELECT p.id, p.name, p.description, p.repo_url, p.homepage_url, p.stars, p.avatar_url
       FROM projects p
       #{tag_join}
       WHERE 1=1 #{search_clause}
