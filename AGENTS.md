@@ -85,6 +85,54 @@ Enum.map(rows, fn row -> Enum.zip(columns, row) |> Map.new() end)
 {:ok, rows} = NexBase.sql("SELECT * FROM projects WHERE id = $1", [id])
 ```
 
+### DO NOT use `Ecto.Adapters.SQL.query!` in migrations
+```elixir
+# WRONG — exposes Ecto internals
+Ecto.Adapters.SQL.query!(NexBase.Repo, "CREATE TABLE ...", [])
+
+# RIGHT — NexBase wraps it
+NexBase.query!("CREATE TABLE ...", [])
+```
+
+### DO NOT pass ISO 8601 strings to TIMESTAMP columns
+```elixir
+# WRONG — Postgrex expects %NaiveDateTime{}, not a string
+NexBase.from("projects")
+|> NexBase.insert(%{pushed_at: "2025-01-01T00:00:00Z"})
+|> NexBase.run()
+
+# RIGHT — parse to NaiveDateTime first
+{:ok, dt, _} = DateTime.from_iso8601("2025-01-01T00:00:00Z")
+ndt = DateTime.to_naive(dt)
+NexBase.from("projects")
+|> NexBase.insert(%{pushed_at: ndt})
+|> NexBase.run()
+```
+
+### DO NOT pass ISO 8601 strings to DATE columns
+```elixir
+# WRONG — Postgrex expects %Date{}, not a string
+NexBase.sql("SELECT ... WHERE recorded_at = $1", [Date.to_iso8601(Date.utc_today())])
+
+# RIGHT — pass %Date{} struct directly
+NexBase.sql("SELECT ... WHERE recorded_at = $1", [Date.utc_today()])
+```
+
+### DO NOT mix `NexBase.select` (atom keys) with string key access
+```elixir
+# WRONG — NexBase.select returns atom keys, but accessing with string keys
+{:ok, rows} = NexBase.from("projects") |> NexBase.select([:id, :stars]) |> NexBase.run()
+hd(rows)["id"]   # => nil (keys are atoms, not strings)
+
+# RIGHT — use NexBase.sql for consistent string keys
+{:ok, rows} = NexBase.sql("SELECT id, stars FROM projects")
+hd(rows)["id"]   # => 1 ✓
+
+# OR — access with atom keys if using NexBase.select
+{:ok, rows} = NexBase.from("projects") |> NexBase.select([:id, :stars]) |> NexBase.run()
+hd(rows).id      # => 1 ✓
+```
+
 ### DO NOT manually add CSRF tags
 ```elixir
 # WRONG — Nex handles CSRF automatically
