@@ -1,18 +1,14 @@
-FROM elixir:1.18-alpine
+FROM hexpm/elixir:1.18.3-erlang-27.2.4-alpine-3.21.3
 
 RUN apk add --no-cache build-base git openssl ncurses-libs
 
 WORKDIR /app
 
-ENV HEX_HTTP_TIMEOUT=120000
-ENV HEX_HTTP_CONCURRENCY=1
-
-RUN mix local.hex --force --if-missing && \
-    mix local.rebar --force --if-missing
+COPY mix.exs mix.lock ./
+RUN mix deps.get
 
 COPY . .
-
-RUN mix deps.get
+RUN mix deps.compile
 
 EXPOSE 4000
 
