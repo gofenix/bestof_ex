@@ -19,7 +19,7 @@ defmodule BestofEx.GitHub do
     url = "#{@base_url}/search/repositories"
 
     params = [
-      q: "language:elixir stars:>10000",
+      q: "language:elixir stars:>5000",
       sort: "stars",
       order: "desc",
       per_page: @per_page,
